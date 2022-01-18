@@ -3,6 +3,9 @@ name: Publish
 on:
   release:
     types: [published]
+  push:
+    branches:
+      - postrelease_test
 
 jobs:
   publish:
@@ -11,7 +14,7 @@ jobs:
       - name: Checkout Package
         uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: v2.24.0
       - name: Setup Node environment
         uses: actions/setup-node@v1
         with:
@@ -19,6 +22,11 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: NPM Install
         run: npm install
+      - name: NPM run build
+        run: npm run build
+      - name: Wait for 60 seconds
+        run: sleep 60s
+        shell: bash
       - name: NPM run build
         run: npm run build
       - name: Get npm tag name if needed
@@ -37,3 +45,80 @@ jobs:
         run: npm publish --tag ${{ steps.npm_tag.outputs.npm_tag }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+  deploy_chime_prod_demo:
+    needs: publish
+    name: Prod - Chime Client - Deploy the Serverless Meeting Demos
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_DEFAULT_OUTPUT: text
+      NAME: ChimeProd
+    steps:
+      - name: Publish to NPM with tag
+        run: ${{ steps.npm_tag.outputs.npm_tag }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.PROD_AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+      - name: Checkout Package
+        uses: actions/checkout@v2
+        with:
+          ref: v2.24.0
+      - name: Install SDK and verify npm version
+        run: |
+          current_version=$(.github/script/get-current-version)
+          echo "Current released version:" $current_version
+          echo ::set-output name=current_version::$current_version
+          cd demos/browser
+          npm uninstall amazon-chime-sdk-js
+          npm install amazon-chime-sdk-js@$current_version
+          demo_current_version=$(../../.github/script/get-demo-browser-current-version.js)
+          echo "Current demo version:" $demo_current_version
+          npm run build
+          npm run build --app=meetingReadinessChecker
+      - name: Install SAM CLI
+        run: script/github-action-awscli-installation
+      - name: Run Deployment Script
+        run: script/postrelease
+  deploy_chime_prod_demo_iad:
+    needs: publish
+    name: Prod - ChimeSDKMeetings Client - Deploy the Serverless Meeting Demos
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_DEFAULT_OUTPUT: text
+      NAME: ChimeSDKMeetingsProdIAD
+    steps:
+      - name: Publish to NPM with tag
+        run: ${{ steps.npm_tag.outputs.npm_tag }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.PROD_AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+      - name: Checkout Package
+        uses: actions/checkout@v2
+        with:
+          ref: v2.24.0
+      - name: Install SDK and verify npm version
+        run: |
+          current_version=$(../../.github/script/get-current-version)
+          echo "Current released version:" $current_version
+          echo ::set-output name=current_version::$current_version
+          cd demos/browser
+          npm uninstall amazon-chime-sdk-js
+          npm install amazon-chime-sdk-js@$current_version
+          demo_current_version=$(.github/script/get-demo-browser-current-version.js)
+          echo "Current demo version:" $demo_current_version
+          npm run build
+          npm run build --app=meetingReadinessChecker
+      - name: Install SAM CLI
+        run: script/github-action-awscli-installation
+      - name: Run Deployment Script
+        run: script/postrelease
