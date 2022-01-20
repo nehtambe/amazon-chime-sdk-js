@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout Package
         uses: actions/checkout@v2
+        with:
+          ref: 2.25.0
       - name: Setup Node environment
         uses: actions/setup-node@v1
         with:
@@ -20,6 +22,20 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: NPM Install
         run: npm install
+      - name: NPM run build
+        run: npm run build
+      - name: Get npm tag name if needed
+        id: npm_tag
+        run: |
+          pre_release_name=$(.github/script/get-pre-release-name.js)
+          echo "Pre release name:" $pre_release_name
+          echo ::set-output name=npm_tag::$pre_release_name
+      - name: Publish to NPM latest
+        if: steps.npm_tag.outputs.npm_tag == ''
+        run: echo ${{ steps.npm_tag.outputs.npm_tag }}
+      - name: Publish to NPM with tag
+        if: steps.npm_tag.outputs.npm_tag != ''
+        run: ${{ steps.npm_tag.outputs.npm_tag }}
       - name: Wait for 60 seconds
         run: sleep 60s
         shell: bash
@@ -32,6 +48,8 @@ jobs:
       AWS_DEFAULT_OUTPUT: text
       NAME: ChimeProd
     steps:
+      - name: Publish to NPM with tag
+        run: ${{ steps.npm_tag.outputs.npm_tag }}
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -39,15 +57,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.PROD_AWS_SESSION_TOKEN }}
           aws-region: us-east-1
-      - name: Get current npm version
-        run: |
-          current_version=$(.github/script/get-current-version)
-          echo "Released version:" $current_version
-          echo ::set-output name=npm_tag::$current_version
       - name: Checkout Package
         uses: actions/checkout@v2
         with:
-          ref: refs/tags/$current_version
+          ref: 2.25.0
       - name: Install the Chime SDK
         run: |
           cd demos/browser
@@ -66,6 +79,8 @@ jobs:
       AWS_DEFAULT_OUTPUT: text
       NAME: ChimeSDKMeetingsProdIAD
     steps:
+      - name: Publish to NPM with tag
+        run: ${{ steps.npm_tag.outputs.npm_tag }}
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -73,15 +88,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.PROD_AWS_SESSION_TOKEN }}
           aws-region: us-east-1
-      - name: Get current npm version
-        run: |
-          current_version=$(.github/script/get-current-version)
-          echo "Released version:" $current_version
-          echo ::set-output name=npm_tag::$current_version
       - name: Checkout Package
         uses: actions/checkout@v2
         with:
-          ref: refs/tags/$current_version
+          ref: 2.25.0
       - name: Install the Chime SDK
         run: |
           cd demos/browser
