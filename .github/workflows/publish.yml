@@ -29,6 +29,10 @@ jobs:
       AWS_DEFAULT_OUTPUT: text
       NAME: ChimeProd
     steps:
+      - name: Sleep for 60 seconds
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '60s'
       - run: echo ${{steps.npm_tag.outputs.npm_tag}}
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
