@@ -57,7 +57,9 @@ jobs:
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
           npm install amazon-chime-sdk-js@$current_version
-          demo_current_version=$(../../.github/script/get-demo-browser-current-version.js)
+      - name: verify npm version
+        run: |
+          demo_current_version=$(.github/script/get-demo-browser-current-version.js)
           echo "Current demo version:" $demo_current_version
           npm run build
           npm run build --app=meetingReadinessChecker
@@ -95,6 +97,8 @@ jobs:
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
           npm install amazon-chime-sdk-js@$current_version
+      - name: verify npm version
+        run: |
           demo_current_version=$(.github/script/get-demo-browser-current-version.js)
           echo "Current demo version:" $demo_current_version
           npm run build
