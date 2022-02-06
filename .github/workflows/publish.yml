@@ -11,7 +11,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     outputs:
-      npm_version: 2.24.0
+      npm_version: ${{ steps.npm_version.outputs.npm_version }}
     steps:
       - name: Checkout Package
         uses: actions/checkout@v2
@@ -29,9 +29,14 @@ jobs:
       - name: Get npm tag name if needed
         id: npm_tag
         run: |
-          pre_release_name=2.24.0
+          pre_release_name=$(.github/script/get-pre-release-name.js)
           echo "Pre release name:" $pre_release_name
           echo ::set-output name=npm_tag::$pre_release_name
+      - name: Set npm tag for outputs
+        id: npm_version
+        run: |
+          echo "Setting npm version:" 2.24.0
+          echo ::set-output name=npm_version::2.24.0
       - name: Wait for 60 seconds
         run: sleep 60s
         shell: bash
@@ -47,7 +52,7 @@ jobs:
       - name: Get current published version
         id: npm_version
         run: |
-          current_version=${{ needs.publish.outputs.npm_version }}"
+          current_version=${{ needs.publish.outputs.npm_version }}
           echo "Current released version:" $current_version
           echo ::set-output name=npm_tag::$current_version
       - name: Configure AWS Credentials
@@ -66,17 +71,17 @@ jobs:
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
           npm install amazon-chime-sdk-js@${{ steps.npm_version.outputs.npm_tag }}
-#      - name: Verify npm version
-#        run: |
-#          demo_current_version=$(.github/script/get-demo-browser-current-version.js)
-#          echo "Current demo version:" $demo_current_version
-#          if demo_current_version != "^#${{ steps.npm_version.outputs.npm_tag }}" then
-#            echo "npm version is not the same as the current version"
-#          else
-#            npm run build
-#            npm run build --app=meetingReadinessChecker
-#            script/github-action-awscli-installation
-#            script/postrelease
+      - name: Verify npm version
+        run: |
+          demo_current_version=$(.github/script/get-demo-browser-current-version.js)
+          echo "Current demo version:" $demo_current_version
+          if demo_current_version != "^#${{ steps.npm_version.outputs.npm_tag }}" then
+            echo "npm version is not the same as the current version"
+          else
+            npm run build
+            npm run build --app=meetingReadinessChecker
+            script/github-action-awscli-installation
+            script/postrelease
       #- name: Install SAM CLI
        # run: script/github-action-awscli-installation
       #- name: Run Deployment Script
@@ -93,7 +98,7 @@ jobs:
       - name: Get current published version
         id: npm_version
         run: |
-          current_version=${{ needs.publish.outputs.npm_version }}"
+          current_version=${{ needs.publish.outputs.npm_version }}
           echo "Current released version:" $current_version
           echo ::set-output name=npm_tag::$current_version
       - name: Configure AWS Credentials
@@ -112,14 +117,14 @@ jobs:
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
           npm install amazon-chime-sdk-js@${{ steps.npm_version.outputs.npm_tag }}
-#      - name: Verify npm version
-#        run: |
-#          demo_current_version=$(.github/script/get-demo-browser-current-version.js)
-#          echo "Current demo version:" $demo_current_version
-#          if demo_current_version != "^#${{ steps.npm_version.outputs.npm_tag }}" then
-#            echo "npm version is not the same as the current version"
-#          else
-#            npm run build
-#            npm run build --app=meetingReadinessChecker
-#            script/github-action-awscli-installation
-#            script/postrelease
+      - name: Verify npm version
+        run: |
+          demo_current_version=$(.github/script/get-demo-browser-current-version.js)
+          echo "Current demo version:" $demo_current_version
+          if demo_current_version != "^#${{ steps.npm_version.outputs.npm_tag }}" then
+            echo "npm version is not the same as the current version"
+          else
+            npm run build
+            npm run build --app=meetingReadinessChecker
+            script/github-action-awscli-installation
+            script/postrelease
