@@ -42,8 +42,12 @@ jobs:
       AWS_DEFAULT_OUTPUT: text
       NAME: ChimeProd
     steps:
-      - name: Publish to NPM with tag
-        run: echo "Current released version:" ${{ steps.npm_tag.outputs.npm_tag }}
+      - name: Get current published npm tag
+        id: npm_tag
+        run: |
+          current_version=$(.github/script/get-current-version)
+          echo "Current released version:" $current_version
+          echo ::set-output name=npm_tag::$current_version
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -57,22 +61,24 @@ jobs:
           ref: ${{ steps.npm_tag.outputs.npm_tag }}
       - name: Install SDK and verify npm version
         run: |
-          current_version=$(.github/script/get-current-version)
-          echo "Current released version:" $current_version
-          echo ::set-output name=current_version::$current_version
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
           npm install amazon-chime-sdk-js@${{ steps.npm_tag.outputs.npm_tag }}
-      - name: verify npm version
+      - name: Verify npm version
         run: |
           demo_current_version=$(.github/script/get-demo-browser-current-version.js)
           echo "Current demo version:" $demo_current_version
-          npm run build
-          npm run build --app=meetingReadinessChecker
-      - name: Install SAM CLI
-        run: script/github-action-awscli-installation
-      - name: Run Deployment Script
-        run: script/postrelease
+          if demo_package['dependencies']['amazon-chime-sdk-js'] != "^#{npm_version}" then
+            echo "npm version is not the same as the current version"
+          else
+            npm run build
+            npm run build --app=meetingReadinessChecker
+            script/github-action-awscli-installation
+            script/postrelease
+      #- name: Install SAM CLI
+       # run: script/github-action-awscli-installation
+      #- name: Run Deployment Script
+        #run: script/postrelease
   deploy_chime_prod_demo_iad:
     needs: publish
     name: Prod - ChimeSDKMeetings Client - Deploy the Serverless Meeting Demos
@@ -82,8 +88,12 @@ jobs:
       AWS_DEFAULT_OUTPUT: text
       NAME: ChimeSDKMeetingsProdIAD
     steps:
-      - name: Publish to NPM with tag
-        run: echo "Current released version:" ${{ steps.npm_tag.outputs.npm_tag }}
+      - name: Get current published npm tag
+        id: npm_tag
+        run: |
+          current_version=$(.github/script/get-current-version)
+          echo "Current released version:" $current_version
+          echo ::set-output name=npm_tag::$current_version
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -97,19 +107,17 @@ jobs:
           ref: ${{ steps.npm_tag.outputs.npm_tag }}
       - name: Install SDK and verify npm version
         run: |
-          current_version=$(.github/script/get-current-version)
-          echo "Current released version:" $current_version
-          echo ::set-output name=current_version::$current_version
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
           npm install amazon-chime-sdk-js@${{ steps.npm_tag.outputs.npm_tag }}
-      - name: verify npm version
+      - name: Verify npm version
         run: |
           demo_current_version=$(.github/script/get-demo-browser-current-version.js)
           echo "Current demo version:" $demo_current_version
-          npm run build
-          npm run build --app=meetingReadinessChecker
-      - name: Install SAM CLI
-        run: script/github-action-awscli-installation
-      - name: Run Deployment Script
-        run: script/postrelease
+          if demo_package['dependencies']['amazon-chime-sdk-js'] != "^#{npm_version}" then
+            echo "npm version is not the same as the current version"
+          else
+            npm run build
+            npm run build --app=meetingReadinessChecker
+            script/github-action-awscli-installation
+            script/postrelease
