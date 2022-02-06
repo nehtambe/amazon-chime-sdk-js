@@ -10,6 +10,8 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    outputs:
+      npm_version: 2.24.0
     steps:
       - name: Checkout Package
         uses: actions/checkout@v2
@@ -33,8 +35,6 @@ jobs:
       - name: Wait for 60 seconds
         run: sleep 60s
         shell: bash
-#      outputs:
-#        npm_version: 2.24.0
   deploy_chime_prod_demo:
     needs: publish
     name: Prod - Chime Client - Deploy the Serverless Meeting Demos
