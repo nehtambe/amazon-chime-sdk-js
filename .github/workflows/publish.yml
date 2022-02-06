@@ -66,17 +66,17 @@ jobs:
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
           npm install amazon-chime-sdk-js@${{ steps.npm_version.outputs.npm_tag }}
-      - name: Verify npm version
-        run: |
-          demo_current_version=$(.github/script/get-demo-browser-current-version.js)
-          echo "Current demo version:" $demo_current_version
-          if demo_current_version != "^#${{ steps.npm_version.outputs.npm_tag }}" then
-            echo "npm version is not the same as the current version"
-          else
-            npm run build
-            npm run build --app=meetingReadinessChecker
-            script/github-action-awscli-installation
-            script/postrelease
+#      - name: Verify npm version
+#        run: |
+#          demo_current_version=$(.github/script/get-demo-browser-current-version.js)
+#          echo "Current demo version:" $demo_current_version
+#          if demo_current_version != "^#${{ steps.npm_version.outputs.npm_tag }}" then
+#            echo "npm version is not the same as the current version"
+#          else
+#            npm run build
+#            npm run build --app=meetingReadinessChecker
+#            script/github-action-awscli-installation
+#            script/postrelease
       #- name: Install SAM CLI
        # run: script/github-action-awscli-installation
       #- name: Run Deployment Script
@@ -112,14 +112,14 @@ jobs:
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
           npm install amazon-chime-sdk-js@${{ steps.npm_version.outputs.npm_tag }}
-      - name: Verify npm version
-        run: |
-          demo_current_version=$(.github/script/get-demo-browser-current-version.js)
-          echo "Current demo version:" $demo_current_version
-          if demo_current_version != "^#${{ steps.npm_version.outputs.npm_tag }}" then
-            echo "npm version is not the same as the current version"
-          else
-            npm run build
-            npm run build --app=meetingReadinessChecker
-            script/github-action-awscli-installation
-            script/postrelease
+#      - name: Verify npm version
+#        run: |
+#          demo_current_version=$(.github/script/get-demo-browser-current-version.js)
+#          echo "Current demo version:" $demo_current_version
+#          if demo_current_version != "^#${{ steps.npm_version.outputs.npm_tag }}" then
+#            echo "npm version is not the same as the current version"
+#          else
+#            npm run build
+#            npm run build --app=meetingReadinessChecker
+#            script/github-action-awscli-installation
+#            script/postrelease
