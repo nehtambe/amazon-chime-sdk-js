@@ -43,7 +43,7 @@ jobs:
       NAME: ChimeProd
     steps:
       - name: Publish to NPM with tag
-        run: ${{ steps.npm_tag.outputs.npm_tag }}
+        run: echo "Current released version:" ${{ steps.npm_tag.outputs.npm_tag }}
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -62,7 +62,7 @@ jobs:
           echo ::set-output name=current_version::$current_version
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
-          npm install amazon-chime-sdk-js@$current_version
+          npm install amazon-chime-sdk-js@${{ steps.npm_tag.outputs.npm_tag }}
       - name: verify npm version
         run: |
           demo_current_version=$(.github/script/get-demo-browser-current-version.js)
@@ -83,7 +83,7 @@ jobs:
       NAME: ChimeSDKMeetingsProdIAD
     steps:
       - name: Publish to NPM with tag
-        run: ${{ steps.npm_tag.outputs.npm_tag }}
+        run: echo "Current released version:" ${{ steps.npm_tag.outputs.npm_tag }}
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -94,15 +94,15 @@ jobs:
       - name: Checkout Package
         uses: actions/checkout@v2
         with:
-          ref: v2.24.0
+          ref: ${{ steps.npm_tag.outputs.npm_tag }}
       - name: Install SDK and verify npm version
         run: |
-          current_version=$(../../.github/script/get-current-version)
+          current_version=$(.github/script/get-current-version)
           echo "Current released version:" $current_version
           echo ::set-output name=current_version::$current_version
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
-          npm install amazon-chime-sdk-js@$current_version
+          npm install amazon-chime-sdk-js@${{ steps.npm_tag.outputs.npm_tag }}
       - name: verify npm version
         run: |
           demo_current_version=$(.github/script/get-demo-browser-current-version.js)
