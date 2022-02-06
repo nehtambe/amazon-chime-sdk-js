@@ -24,28 +24,15 @@ jobs:
         run: npm install
       - name: NPM run build
         run: npm run build
-      - name: Wait for 60 seconds
-        run: sleep 60s
-        shell: bash
-      - name: NPM run build
-        run: npm run build
       - name: Get npm tag name if needed
         id: npm_tag
         run: |
-          pre_release_name=$(.github/script/get-pre-release-name.js)
+          pre_release_name=2.24.0
           echo "Pre release name:" $pre_release_name
           echo ::set-output name=npm_tag::$pre_release_name
-      - name: Publish to NPM latest
-        if:  steps.npm_tag.outputs.npm_tag == ''
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-      - name: Publish to NPM with tag
-        if: steps.npm_tag.outputs.npm_tag != ''
-        run: npm publish --tag ${{ steps.npm_tag.outputs.npm_tag }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-
+      - name: Wait for 60 seconds
+        run: sleep 60s
+        shell: bash
   deploy_chime_prod_demo:
     needs: publish
     name: Prod - Chime Client - Deploy the Serverless Meeting Demos
@@ -67,7 +54,7 @@ jobs:
       - name: Checkout Package
         uses: actions/checkout@v2
         with:
-          ref: v2.24.0
+          ref: ${{ steps.npm_tag.outputs.npm_tag }}
       - name: Install SDK and verify npm version
         run: |
           current_version=$(.github/script/get-current-version)
