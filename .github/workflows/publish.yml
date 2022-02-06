@@ -65,7 +65,7 @@ jobs:
       - name: Checkout Package
         uses: actions/checkout@v2
         with:
-          ref: ${{ steps.npm_version.outputs.npm_tag }}
+          ref: v${{ steps.npm_version.outputs.npm_tag }}
       - name: Install SDK and verify npm version
         run: |
           cd demos/browser
@@ -111,7 +111,7 @@ jobs:
       - name: Checkout Package
         uses: actions/checkout@v2
         with:
-          ref: ${{ steps.npm_version.outputs.npm_tag }}
+          ref: v${{ steps.npm_version.outputs.npm_tag }}
       - name: Install SDK and verify npm version
         run: |
           cd demos/browser
