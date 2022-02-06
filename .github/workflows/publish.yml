@@ -33,6 +33,8 @@ jobs:
       - name: Wait for 60 seconds
         run: sleep 60s
         shell: bash
+      outputs:
+        npm_version: 2.24.0
   deploy_chime_prod_demo:
     needs: publish
     name: Prod - Chime Client - Deploy the Serverless Meeting Demos
@@ -42,10 +44,10 @@ jobs:
       AWS_DEFAULT_OUTPUT: text
       NAME: ChimeProd
     steps:
-      - name: Get current published npm tag
-        id: npm_tag
+      - name: Get current published version
+        id: npm_version
         run: |
-          current_version=$(.github/script/get-current-version)
+          current_version=${{ needs.publish.outputs.npm_version }}"
           echo "Current released version:" $current_version
           echo ::set-output name=npm_tag::$current_version
       - name: Configure AWS Credentials
@@ -58,17 +60,17 @@ jobs:
       - name: Checkout Package
         uses: actions/checkout@v2
         with:
-          ref: ${{ steps.npm_tag.outputs.npm_tag }}
+          ref: ${{ steps.npm_version.outputs.npm_tag }}
       - name: Install SDK and verify npm version
         run: |
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
-          npm install amazon-chime-sdk-js@${{ steps.npm_tag.outputs.npm_tag }}
+          npm install amazon-chime-sdk-js@${{ steps.npm_version.outputs.npm_tag }}
       - name: Verify npm version
         run: |
           demo_current_version=$(.github/script/get-demo-browser-current-version.js)
           echo "Current demo version:" $demo_current_version
-          if demo_package['dependencies']['amazon-chime-sdk-js'] != "^#{npm_version}" then
+          if demo_current_version != "^#${{ steps.npm_version.outputs.npm_tag }}" then
             echo "npm version is not the same as the current version"
           else
             npm run build
@@ -88,10 +90,10 @@ jobs:
       AWS_DEFAULT_OUTPUT: text
       NAME: ChimeSDKMeetingsProdIAD
     steps:
-      - name: Get current published npm tag
-        id: npm_tag
+      - name: Get current published version
+        id: npm_version
         run: |
-          current_version=$(.github/script/get-current-version)
+          current_version=${{ needs.publish.outputs.npm_version }}"
           echo "Current released version:" $current_version
           echo ::set-output name=npm_tag::$current_version
       - name: Configure AWS Credentials
@@ -104,17 +106,17 @@ jobs:
       - name: Checkout Package
         uses: actions/checkout@v2
         with:
-          ref: ${{ steps.npm_tag.outputs.npm_tag }}
+          ref: ${{ steps.npm_version.outputs.npm_tag }}
       - name: Install SDK and verify npm version
         run: |
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
-          npm install amazon-chime-sdk-js@${{ steps.npm_tag.outputs.npm_tag }}
+          npm install amazon-chime-sdk-js@${{ steps.npm_version.outputs.npm_tag }}
       - name: Verify npm version
         run: |
           demo_current_version=$(.github/script/get-demo-browser-current-version.js)
           echo "Current demo version:" $demo_current_version
-          if demo_package['dependencies']['amazon-chime-sdk-js'] != "^#{npm_version}" then
+          if demo_current_version != "^#${{ steps.npm_version.outputs.npm_tag }}" then
             echo "npm version is not the same as the current version"
           else
             npm run build
