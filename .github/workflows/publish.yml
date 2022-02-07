@@ -75,13 +75,15 @@ jobs:
         run: |
           demo_current_version=2.24.0
           echo "Current demo version:" $demo_current_version
-          if demo_current_version != "^#${{ needs.publish.outputs.npm_version }}" then
+          if demo_current_version != "^#${{ needs.publish.outputs.npm_version }}"
+          then
             echo "npm version is not the same as the current version"
           else
             npm run build
             npm run build --app=meetingReadinessChecker
             script/github-action-awscli-installation
             script/postrelease
+          fi
       #- name: Install SAM CLI
        # run: script/github-action-awscli-installation
       #- name: Run Deployment Script
@@ -121,10 +123,12 @@ jobs:
         run: |
           demo_current_version=2.24.0
           echo "Current demo version:" $demo_current_version
-          if demo_current_version != "^#${{ needs.publish.outputs.npm_version }}" then
+          if demo_current_version != "^#${{ needs.publish.outputs.npm_version }}"
+          then
             echo "npm version is not the same as the current version"
           else
             npm run build
             npm run build --app=meetingReadinessChecker
             script/github-action-awscli-installation
             script/postrelease
+          fi
