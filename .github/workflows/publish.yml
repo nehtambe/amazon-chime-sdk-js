@@ -68,8 +68,8 @@ jobs:
           else
             npm run build
             npm run build --app=meetingReadinessChecker
-            ../../script/github-action-awscli-installation
-            ../../script/postrelease
+            script/github-action-awscli-installation
+            script/postrelease
           fi
       #- name: Install SAM CLI
        # run: script/github-action-awscli-installation
@@ -116,8 +116,8 @@ jobs:
           else
             npm run build
             npm run build --app=meetingReadinessChecker
-            ../../script/github-action-awscli-installation
-            ../../script/postrelease
+            script/github-action-awscli-installation
+            script/postrelease
           fi
   deploy_chime_prod_demo_pdx:
     needs: publish
@@ -160,6 +160,6 @@ jobs:
           else
             npm run build
             npm run build --app=meetingReadinessChecker
-            ../../script/github-action-awscli-installation
-            ../../script/postrelease
+            script/github-action-awscli-installation
+            script/postrelease
           fi
