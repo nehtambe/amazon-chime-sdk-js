@@ -32,7 +32,7 @@ jobs:
           pre_release_name=2.24.0
           echo "Pre release name:" $pre_release_name
           echo ::set-output name=npm_tag::$pre_release_name
-      - name: Set npm tag for outputs
+      - name: Set npm version for outputs
         id: npm_version
         run: |
           echo "Setting npm version:" 2.24.0
@@ -65,17 +65,17 @@ jobs:
       - name: Checkout Package
         uses: actions/checkout@v2
         with:
-          ref: v${{ steps.npm_version.outputs.npm_tag }}
+          ref: v${{ needs.publish.outputs.npm_version }}
       - name: Install SDK and verify npm version
         run: |
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
-          npm install amazon-chime-sdk-js@${{ steps.npm_version.outputs.npm_tag }}
+          npm install amazon-chime-sdk-js@${{ needs.publish.outputs.npm_version }}
       - name: Verify npm version
         run: |
-          demo_current_version=$(.github/script/get-demo-browser-current-version.js)
+          demo_current_version=2.24.0
           echo "Current demo version:" $demo_current_version
-          if demo_current_version != "^#${{ steps.npm_version.outputs.npm_tag }}" then
+          if demo_current_version != "^#${{ needs.publish.outputs.npm_version }}" then
             echo "npm version is not the same as the current version"
           else
             npm run build
@@ -111,17 +111,17 @@ jobs:
       - name: Checkout Package
         uses: actions/checkout@v2
         with:
-          ref: v${{ steps.npm_version.outputs.npm_tag }}
+          ref: v${{ needs.publish.outputs.npm_version }}
       - name: Install SDK and verify npm version
         run: |
           cd demos/browser
           npm uninstall amazon-chime-sdk-js
-          npm install amazon-chime-sdk-js@${{ steps.npm_version.outputs.npm_tag }}
+          npm install amazon-chime-sdk-js@${{ needs.publish.outputs.npm_version }}
       - name: Verify npm version
         run: |
-          demo_current_version=$(.github/script/get-demo-browser-current-version.js)
+          demo_current_version=2.24.0
           echo "Current demo version:" $demo_current_version
-          if demo_current_version != "^#${{ steps.npm_version.outputs.npm_tag }}" then
+          if demo_current_version != "^#${{ needs.publish.outputs.npm_version }}" then
             echo "npm version is not the same as the current version"
           else
             npm run build
