@@ -111,7 +111,7 @@ jobs:
           npm install amazon-chime-sdk-js@${{ steps.npm_version.outputs.npm_version }}
       - name: Verify npm version
         run: |
-          demo_current_version=2.24.0
+          demo_current_version=2.25.0
           echo "Current demo version:" $demo_current_version
           if demo_current_version != "^#${{ steps.npm_version.outputs.npm_version }}"
           then
