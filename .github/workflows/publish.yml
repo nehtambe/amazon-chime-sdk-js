@@ -39,7 +39,7 @@ jobs:
       - name: Verify the npm version is available
         id: npm_version
         run: |
-          tag_name=v2.4.0
+          tag_name=v3.4.0
           current_version=${tag_name:1}
           max_wait_time=300
           wait_time=0
